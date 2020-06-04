@@ -1,0 +1,67 @@
+class LRUCache {
+public:
+    //to maintain the mapping between the key and value
+    map<int,int> key_value;
+    //to maintain the frequncy
+    //hardly_used will be at the beginning,
+    //recently_used will be at the end
+    vector<int> key_freq;
+    //maximum capacity of the pool
+    int cap;
+    LRUCache(int capacity) {
+        cap = capacity;
+    }
+    
+    int get(int key) {
+        int val;
+        if(key_value.find(key)!=key_value.end()){
+            //for finding the value for the given key
+            val = key_value.find(key)->second;
+            //erase the key from the vector and push_back so that the recently used item
+            //will always be on top.
+            //hardly used key will always be at the starting of the vector
+            key_freq.erase(find(key_freq.begin(), key_freq.end(),key));
+            key_freq.push_back(key);
+        }else{
+            val = -1;
+        }
+        return val;
+    }
+
+    void put(int key, int value) {
+            if(key_value.find(key)==key_value.end()){
+                //if the key doesnt exists in the map
+                if(key_value.size()<cap){
+                    //if the processes in the pool less than the capacity
+                    //i.e. the size of the map doesn't exceed capacity
+                    key_value.insert(pair<int,int>(key, value));
+                    key_freq.push_back(key);
+                }else{
+                    //if the max_capacity reached
+                    //find the hardly used item(key) which is at the front of vector
+                    //erase it from both the map and the vector
+                    key_value.erase(key_freq.front());
+                    key_freq.erase(find(key_freq.begin(), key_freq.end(),key_freq.front()));
+                    //insert the new key and its value
+                    //push_back that key to the vector
+                    key_value.insert(pair<int,int>(key, value));
+                    key_freq.push_back(key);
+                }
+            }else{
+                //if key exists in the map
+                //update the value of the key
+                //erase the key from the vector and push_back the same key,
+                //to observe the recently used key.
+                key_value.find(key)->second=value;
+                key_freq.erase(find(key_freq.begin(), key_freq.end(),key));
+                key_freq.push_back(key);
+            }
+    }
+};
+
+/**
+ * Your LRUCache object will be instantiated and called as such:
+ * LRUCache* obj = new LRUCache(capacity);
+ * int param_1 = obj->get(key);
+ * obj->put(key,value);
+ */
